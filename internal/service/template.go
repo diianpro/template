@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/diianpro/template/internal/storage/mongo"
 	"github.com/google/uuid"
+	"html/template"
 )
 
 // Template define service type
@@ -19,10 +20,14 @@ func New(tmpl *mongo.Storage) *Template {
 }
 
 // CreateTemplate general template entity
-func (t *Template) CreateTemplate(ctx context.Context) error {
-	return nil
+func (t *Template) CreateTemplate(ctx context.Context, template []byte) (uuid.UUID, error) {
+	return t.tmpl.Create(ctx, template)
 }
 
-func (t *Template) DeleteTemplate(ctx context.Context, ID uuid.UUID) error {
+func (t *Template) GetByID(ctx context.Context, ID uuid.UUID) (template.Template, error) {
+	return t.tmpl.GetById(ctx, ID)
+}
+
+func (t *Template) Delete(ctx context.Context, ID uuid.UUID) error {
 	return t.tmpl.Delete(ctx, ID)
 }

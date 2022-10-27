@@ -23,7 +23,10 @@ func main() {
 
 	e := echo.New()
 
-	e.POST("/create", handler.CreateTemplate())
+	e.POST("/template", handler.AddTemplate())
+	e.GET("/template/:id", handler.GetByIDTemplate())
+	e.DELETE("/template", handler.DeleteTemplate())
+
 	e.Logger.Fatal(e.Start(":8080"))
 
 }
