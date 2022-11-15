@@ -1,19 +1,22 @@
 package http
 
 import (
+	"fmt"
 	"github.com/diianpro/template/internal/service"
+	"io"
+	"net/http"
+	"strconv"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"io"
-	"net/http"
 )
 
 type Server struct {
-	tmpl *service.Template
+	tmpl service.Template
 }
 
-func New(tmpl *service.Template) *Server {
+func New(tmpl service.Template) *Server {
 	return &Server{
 		tmpl: tmpl,
 	}
@@ -52,30 +55,50 @@ func (s *Server) AddTemplate() echo.HandlerFunc {
 
 func (s *Server) GetByIDTemplate() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ID, err := uuid.Parse("_id")
+		resp := c.Param("id")
+		ID, err := uuid.Parse(resp)
 		if err != nil {
-			log.Errorf("Parse getById error: %v", err)
-
+			return echo.NewHTTPError(http.StatusBadRequest, "parse getById error")
 		}
 		file, err := s.tmpl.GetByID(c.Request().Context(), ID)
 		if err != nil {
-			log.Errorf("Find getById error: %v", err)
+			return echo.NewHTTPError(http.StatusNoContent, "find getById error")
 		}
-		return c.JSON(http.StatusOK, file)
+		return c.HTMLBlob(http.StatusOK, file)
 	}
 }
 
 func (s *Server) DeleteTemplate() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ID, err := uuid.Parse("_id")
+		resp := c.Param("id")
+		ID, err := uuid.Parse(resp)
 		if err != nil {
-			log.Errorf("Parse getById error: %v", err)
-
+			return echo.NewHTTPError(http.StatusBadRequest, "parse getById error")
 		}
 		err = s.tmpl.Delete(c.Request().Context(), ID)
 		if err != nil {
-			log.Errorf("Delete error: %v", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "delete error")
 		}
 		return c.JSON(http.StatusOK, "Document delete")
+	}
+}
+
+func (s *Server) GetListsTemplate() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		limit := c.QueryParam("limit")
+		cnvLimit, err := strconv.ParseInt(limit, 10, 64)
+		if err != nil {
+			return fmt.Errorf("parse limit: error : %w", err)
+		}
+		offset := c.QueryParam("offset")
+		cnvOffset, err := strconv.ParseInt(offset, 10, 64)
+		if err != nil {
+			return fmt.Errorf("parse offser: error : %w", err)
+		}
+		result, err := s.tmpl.GetAll(c.Request().Context(), cnvLimit, cnvOffset)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "get by list error")
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }

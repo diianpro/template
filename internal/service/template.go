@@ -2,32 +2,30 @@ package service
 
 import (
 	"context"
-	"github.com/diianpro/template/internal/storage/mongo"
+	"github.com/diianpro/template/internal/domain"
 	"github.com/google/uuid"
-	"html/template"
 )
 
-// Template define service type
-type Template struct {
-	tmpl *mongo.Storage
-}
-
-// New initialize service
-func New(tmpl *mongo.Storage) *Template {
-	return &Template{
-		tmpl: tmpl,
-	}
+type Template interface {
+	CreateTemplate(ctx context.Context, template []byte) (string, error)
+	GetByID(ctx context.Context, id uuid.UUID) ([]byte, error)
+	GetAll(ctx context.Context, limit int64, offset int64) (*domain.Templates, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 // CreateTemplate general template entity
-func (t *Template) CreateTemplate(ctx context.Context, template []byte) (uuid.UUID, error) {
-	return t.tmpl.Create(ctx, template)
+func (s *Service) CreateTemplate(ctx context.Context, template []byte) (string, error) {
+	return s.tmpl.Create(ctx, template)
 }
 
-func (t *Template) GetByID(ctx context.Context, ID uuid.UUID) (template.Template, error) {
-	return t.tmpl.GetById(ctx, ID)
+func (s *Service) GetByID(ctx context.Context, id uuid.UUID) ([]byte, error) {
+	return s.tmpl.GetByID(ctx, id)
 }
 
-func (t *Template) Delete(ctx context.Context, ID uuid.UUID) error {
-	return t.tmpl.Delete(ctx, ID)
+func (s *Service) GetAll(ctx context.Context, limit int64, offset int64) (*domain.Templates, error) {
+	return s.tmpl.GetAll(ctx, limit, offset)
+}
+
+func (s *Service) Delete(ctx context.Context, id uuid.UUID) error {
+	return s.tmpl.Delete(ctx, id)
 }

@@ -1,4 +1,4 @@
-package http
+package test
 
 import (
 	"bytes"
@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"github.com/labstack/gommon/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"html/template"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
-	"text/template"
 )
 
 func TestServer_CreateTemplate(t *testing.T) {
@@ -69,17 +69,9 @@ func newFileUploadRequest(uri, paramName, path string) (*http.Request, error) {
 
 func TestRead(t *testing.T) {
 	var template template.Template
-	err := client.Database("templates").Collection("template").FindOne(context.Background(), bson.D{})
+	err := client.Database("templates").Collection("template").FindOne(context.Background(), bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		log.Errorf("Read file error: %v", err)
 	}
 	fmt.Println(template)
-}
-
-func TestDelete(t *testing.T) {
-	template, err := client.Database("templates").Collection("template").DeleteOne(context.Background(), bson.D{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(template.DeletedCount)
 }

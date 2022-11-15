@@ -1,7 +1,10 @@
 package domain
 
-import "github.com/google/uuid"
-
 type Template struct {
-	ID uuid.UUID `bson:"_id" json:"id"`
+	ID   string `bson:"_id" json:"id"`
+	Data []byte `json:"data" bson:"file"`
+}
+
+type Templates struct {
+	Templates []Template `json:"templates"`
 }

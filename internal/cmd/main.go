@@ -25,7 +25,8 @@ func main() {
 
 	e.POST("/template", handler.AddTemplate())
 	e.GET("/template/:id", handler.GetByIDTemplate())
-	e.DELETE("/template", handler.DeleteTemplate())
+	e.GET("/templates", handler.GetListsTemplate())
+	e.DELETE("/template/:id", handler.DeleteTemplate())
 
 	e.Logger.Fatal(e.Start(":8080"))
 
