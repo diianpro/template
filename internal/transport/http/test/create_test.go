@@ -16,7 +16,7 @@ import (
 )
 
 func TestServer_CreateTemplate(t *testing.T) {
-	req, err := newFileUploadRequest("http://localhost:8080/create", "template", "../../../html/template.html")
+	req, err := newFileUploadRequest("http://localhost:8080/create", "template", "../../../../html/template.html")
 	if err != nil {
 		log.Fatal(err)
 	}

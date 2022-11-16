@@ -21,23 +21,21 @@ func New(cli *mongo.Client) *Storage {
 	}
 }
 
-func (s *Storage) Create(ctx context.Context, template []byte) (string, error) {
-	ID := uuid.New().String()
+func (s *Storage) Create(ctx context.Context, template *domain.Template) error {
 	_, err := s.db.Collection("template").InsertOne(ctx, bson.D{
-		{"id", ID},
-		{"file", template},
+		{"template", template},
 	},
 	)
 	if err != nil {
-		return "", fmt.Errorf("create: error: %w", err)
+		return fmt.Errorf("create: error: %w", err)
 	}
 
-	return ID, nil
+	return nil
 }
 
-func (s *Storage) Delete(ctx context.Context, id uuid.UUID) error {
+func (s *Storage) Delete(ctx context.Context, id string) error {
 	file, err := s.db.Collection("template").DeleteOne(ctx, bson.M{
-		"id": id.String(),
+		"id": id,
 	})
 	if err != nil {
 		return fmt.Errorf("delete by id: error: %w", err)
@@ -49,21 +47,19 @@ func (s *Storage) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) ([]byte, error) {
-	var r = struct {
-		File []byte `bson:"file"`
-	}{}
-	res := s.db.Collection("template").FindOne(ctx, bson.M{
-		"id": id.String(),
-	}, options.FindOne().SetProjection(bson.D{{"file", 1}, {"_id", 0}}))
+func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (*domain.Template, error) {
+	template := &domain.Template{}
+	res := s.db.Collection("template").FindOne(ctx, bson.M{"template": bson.M{"_id": id}}, options.FindOne().SetProjection(bson.D{{"file", 1}, {"_id", 0}}))
 	if res.Err() != nil {
 		return nil, fmt.Errorf("get by: find error: %w", res.Err())
 	}
-	err := res.Decode(&r)
+
+	err := res.Decode(template)
 	if err != nil {
 		return nil, fmt.Errorf("get by id: decode error: %w", err)
 	}
-	return r.File, nil
+
+	return template, nil
 }
 
 func (s *Storage) GetAll(ctx context.Context, limit int64, offset int64) (*domain.Templates, error) {

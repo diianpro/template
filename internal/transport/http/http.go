@@ -2,14 +2,14 @@ package http
 
 import (
 	"fmt"
+	"github.com/diianpro/template/internal/domain"
 	"github.com/diianpro/template/internal/service"
-	"io"
-	"net/http"
-	"strconv"
-
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"io"
+	"net/http"
+	"strconv"
 )
 
 type Server struct {
@@ -43,7 +43,11 @@ func (s *Server) AddTemplate() echo.HandlerFunc {
 
 		}
 
-		id, err := s.tmpl.CreateTemplate(c.Request().Context(), fileBytes)
+		fl := domain.Template{
+			Data: fileBytes,
+		}
+
+		id, err := s.tmpl.CreateTemplate(c.Request().Context(), &fl)
 		if err != nil {
 			log.Errorf("Create file error: %v", err)
 
@@ -56,15 +60,16 @@ func (s *Server) AddTemplate() echo.HandlerFunc {
 func (s *Server) GetByIDTemplate() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		resp := c.Param("id")
-		ID, err := uuid.Parse(resp)
+		id, err := uuid.Parse(resp)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "parse getById error")
 		}
-		file, err := s.tmpl.GetByID(c.Request().Context(), ID)
+		file, err := s.tmpl.GetByID(c.Request().Context(), id)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusNoContent, "find getById error")
 		}
-		return c.HTMLBlob(http.StatusOK, file)
+
+		return c.JSON(http.StatusOK, file)
 	}
 }
 
@@ -75,7 +80,7 @@ func (s *Server) DeleteTemplate() echo.HandlerFunc {
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "parse getById error")
 		}
-		err = s.tmpl.Delete(c.Request().Context(), ID)
+		err = s.tmpl.Delete(c.Request().Context(), ID.String())
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "delete error")
 		}
