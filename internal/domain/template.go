@@ -1,8 +1,8 @@
 package domain
 
 type Template struct {
-	ID   string `bson:"_id" json:"id"`
-	Data []byte `json:"data" bson:"file"`
+	ID   string `json:"id" bson:"id"`
+	Data []byte `json:"data" bson:"data"`
 }
 
 type Templates struct {

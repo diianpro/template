@@ -2,16 +2,17 @@ package test
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGet(t *testing.T) {
 	cli := &http.Client{}
 
-	req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/template/0e44db45-1098-4161-abce-42904f67cb5b", nil)
+	req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/template/92f2db56-5875-4cde-9892-1abdd3dddef2", nil)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "text/html")
 

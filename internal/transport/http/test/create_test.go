@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/labstack/gommon/log"
-	"go.mongodb.org/mongo-driver/bson"
 	"html/template"
 	"io"
 	"mime/multipart"
@@ -13,6 +11,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/labstack/gommon/log"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestServer_CreateTemplate(t *testing.T) {
@@ -38,7 +39,6 @@ func TestServer_CreateTemplate(t *testing.T) {
 		log.Error(err)
 	}
 	log.Info(string(data))
-
 }
 
 // Creates a new file upload http request with optional extra params

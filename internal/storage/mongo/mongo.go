@@ -3,12 +3,14 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"github.com/diianpro/template/internal/domain"
+	"unsafe"
+
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"unsafe"
+
+	"github.com/diianpro/template/internal/domain"
 )
 
 type Storage struct {
@@ -23,7 +25,8 @@ func New(cli *mongo.Client) *Storage {
 
 func (s *Storage) Create(ctx context.Context, template *domain.Template) error {
 	_, err := s.db.Collection("template").InsertOne(ctx, bson.D{
-		{"template", template},
+		{"id", template.ID},
+		{"data", template.Data},
 	},
 	)
 	if err != nil {
@@ -49,7 +52,11 @@ func (s *Storage) Delete(ctx context.Context, id string) error {
 
 func (s *Storage) GetByID(ctx context.Context, id uuid.UUID) (*domain.Template, error) {
 	template := &domain.Template{}
-	res := s.db.Collection("template").FindOne(ctx, bson.M{"template": bson.M{"_id": id}}, options.FindOne().SetProjection(bson.D{{"file", 1}, {"_id", 0}}))
+	findOptions := options.FindOne().SetProjection(bson.D{{"_id", 0}})
+
+	res := s.db.Collection("template").FindOne(ctx, bson.M{
+		"id": id.String(),
+	}, findOptions)
 	if res.Err() != nil {
 		return nil, fmt.Errorf("get by: find error: %w", res.Err())
 	}
